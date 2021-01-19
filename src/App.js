@@ -35,6 +35,12 @@ class App extends Component {
     this.setState({ list, newItem: "" })
   }
 
+  onSubmit = (e) => {
+    this.addItem(this.newItem)
+    this.setState({ list: this.state.list })
+  }
+
+
 
   render() {
     return (
@@ -46,7 +52,7 @@ class App extends Component {
           value={this.state.newItem}
           onChange={e => this.updateInput("newItem", e.target.value)}
         ></Input>
-        <Button >Create Button</Button>
+        <Button onClick={() => this.addItem()}>Create Button</Button>
         {/* Sort alphabetically */}
         <section>
 
