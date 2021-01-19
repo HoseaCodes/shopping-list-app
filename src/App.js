@@ -1,25 +1,32 @@
-import logo from './logo.svg';
+import React, { Component } from 'react';
 import './App.css';
+import styled from 'styled-components';
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+const Button = styled.button`
+
+`;
+
+const Input = styled.input`
+
+`;
+
+class App extends Component {
+  state = {
+    items: ''
+  }
+  render() {
+    return (
+      <main>
+        <Input></Input>
+        <Button>Create Button</Button>
+        {/* Sort alphabetically */}
+        <section> List of Pending Items</section>
+        <section> List of Crossed Off Items</section>
+        {/* Sort alphabetically */}
+
+      </main>
+    )
+  }
 }
 
 export default App;
