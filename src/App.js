@@ -55,7 +55,11 @@ class App extends Component {
         <Button onClick={() => this.addItem()}>Create Button</Button>
         {/* Sort alphabetically */}
         <section>
-
+          <ul>
+            {this.state.list.map(item => {
+              return (<li key={item.id}>{item.text}</li>)
+            })}
+          </ul>
           List of Pending Items
           </section>
         <section> List of Crossed Off Items</section>
