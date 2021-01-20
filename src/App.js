@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import './App.css';
 import styled from 'styled-components';
+import item from './components/item';
 
 const Button = styled.button`
 
@@ -15,6 +16,7 @@ class App extends Component {
     super(props)
     this.state = {
       list: [],
+      filteredSearch: "",
       newItem: "",
       pending: true,
       id: 0
@@ -24,15 +26,27 @@ class App extends Component {
 
   updateInput(key, value) {
     this.setState({
-      [key]: value
+      [key]: value,
+      filteredSearch: value.substr(0, 20),
     })
   }
 
+  pendingCompleted = (id) => {
+    this.setState({
+      list: this.state.list.map(item => {
+        if (item.id === id) {
+          item.pending = !item.pending
+        }
+        return item;
+      })
+    })
+  }
   addItem() {
-    const newItem = { text: this.state.newItem.slice(), id: this.state.id + 1 }
+    const idx = this.state.id + 1
+    const newItem = { text: this.state.newItem, id: idx, pending: true }
     const list = [...this.state.list]
     list.push(newItem);
-    this.setState({ list, newItem: "" })
+    this.setState({ list, newItem: "", id: idx, pending: true })
   }
 
   onSubmit = (e) => {
@@ -40,9 +54,19 @@ class App extends Component {
     this.setState({ list: this.state.list })
   }
 
-
-
+  sortByText = (a, b) => {
+    const diff = a.text.toLowerCase().localeCompare(b.text.toLowerCase());
+    return diff;
+  }
   render() {
+    const { list } = this.state
+    const sortedList = list.sort((a, b) => a.text.localeCompare(b.text))
+      .map((item) => <li key={item.id} >{item.text}</li>);
+
+
+    // const filteredList = list.filter((item) => {
+    //   return item.value.toLowerCase().indexOf(this.state.filteredSearch.toLowerCase()) !== -1
+    // })
     return (
       <main>
         <Input
@@ -56,12 +80,10 @@ class App extends Component {
         {/* Sort alphabetically */}
         <section>
           <ul>
-            {this.state.list.map(item => {
-              return (<li key={item.id}>{item.text}</li>)
-            })}
+            List of Pending Items
+            {sortedList}
           </ul>
-          List of Pending Items
-          </section>
+        </section>
         <section> List of Crossed Off Items</section>
         {/* Sort alphabetically */}
 
