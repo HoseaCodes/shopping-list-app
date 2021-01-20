@@ -16,6 +16,7 @@ class App extends Component {
     super(props)
     this.state = {
       list: [],
+      complete: [],
       filteredSearch: "",
       newItem: "",
       pending: true,
@@ -32,10 +33,22 @@ class App extends Component {
   }
 
   pendingCompleted = (id) => {
-    const newItems = [...this.state.list]
-    newItems[id].pending = false;
+    const list = [...this.state.list]
+    list[id].pending = false;
+    const complete = [...this.state.complete]
+    for (let index = 0; index < list.length; index++) {
+      const element = list[index];
+      if (element.pending === false) {
+        complete.push(element)
+      }
+      else if (element.pending === true) {
+        complete.pop(element)
+      }
+    }
+    list.pop(list[id])
     this.setState({
-      list: this.state.list
+      list,
+      complete
     })
   }
   addItem() {
@@ -56,8 +69,14 @@ class App extends Component {
     return diff;
   }
   render() {
-    const { list } = this.state
+    const { list, complete } = this.state
     const sortedList = list.sort((a, b) => a.text.localeCompare(b.text))
+      .map((item) => <li
+        style={{ textDecoration: item.pending ? "" : "line-through" }}
+        onClick={() => this.pendingCompleted(item.id)}
+        key={item.id} >{item.text}</li>);
+
+    const sortedComplete = complete.sort((a, b) => a.text.localeCompare(b.text))
       .map((item) => <li
         style={{ textDecoration: item.pending ? "" : "line-through" }}
         onClick={() => this.pendingCompleted(item.id)}
@@ -78,14 +97,18 @@ class App extends Component {
         ></Input>
         <Button onClick={() => this.addItem()}>Create Button</Button>
         <section>
+          List of Pending Items
           <ul>
-            List of Pending Items
             {sortedList}
           </ul>
         </section>
-        <section> List of Crossed Off Items</section>
-        {/* Sort alphabetically */}
+        <section>
+          List of Crossed Off Items
+            <ul>
 
+            {sortedComplete}
+          </ul>
+        </section>
       </main>
     )
   }
