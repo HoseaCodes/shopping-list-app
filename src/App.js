@@ -51,6 +51,22 @@ class App extends Component {
       complete
     })
   }
+  pendingList = (id) => {
+    const complete = [...this.state.complete]
+    complete[id].pending = true;
+    const list = [...this.state.list]
+    for (let index = 0; index < complete.length; index++) {
+      const element = complete[index];
+      if (element.pending === true) {
+        list.push(element)
+      }
+    }
+    complete.pop(complete[id])
+    this.setState({
+      list,
+      complete
+    })
+  }
   addItem() {
     const idx = this.state.id + 1
     const newItem = { text: this.state.newItem, id: idx, pending: true }
@@ -79,7 +95,7 @@ class App extends Component {
     const sortedComplete = complete.sort((a, b) => a.text.localeCompare(b.text))
       .map((item) => <li
         style={{ textDecoration: item.pending ? "" : "line-through" }}
-        onClick={() => this.pendingCompleted(item.id)}
+        onClick={() => this.pendingList(item.id)}
         key={item.id} >{item.text}</li>);
 
 
