@@ -19,7 +19,7 @@ class App extends Component {
       filteredSearch: "",
       newItem: "",
       pending: true,
-      id: 0
+      id: -1
 
     }
   }
@@ -32,13 +32,10 @@ class App extends Component {
   }
 
   pendingCompleted = (id) => {
+    const newItems = [...this.state.list]
+    newItems[id].pending = false;
     this.setState({
-      list: this.state.list.map(item => {
-        if (item.id === id) {
-          item.pending = !item.pending
-        }
-        return item;
-      })
+      list: this.state.list
     })
   }
   addItem() {
@@ -61,7 +58,10 @@ class App extends Component {
   render() {
     const { list } = this.state
     const sortedList = list.sort((a, b) => a.text.localeCompare(b.text))
-      .map((item) => <li key={item.id} >{item.text}</li>);
+      .map((item) => <li
+        style={{ textDecoration: item.pending ? "" : "line-through" }}
+        onClick={() => this.pendingCompleted(item.id)}
+        key={item.id} >{item.text}</li>);
 
 
     // const filteredList = list.filter((item) => {
@@ -77,7 +77,6 @@ class App extends Component {
           onChange={e => this.updateInput("newItem", e.target.value)}
         ></Input>
         <Button onClick={() => this.addItem()}>Create Button</Button>
-        {/* Sort alphabetically */}
         <section>
           <ul>
             List of Pending Items
