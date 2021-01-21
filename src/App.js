@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import './App.css';
 import styled from 'styled-components';
 import Header from './components/header';
-import EditForm from './components/editForm';
+import Item from './components/item';
 import { Button } from 'react-bootstrap';
 
 const TitleStyle = styled.h2`
@@ -20,11 +20,7 @@ const SubTitleStyle = styled.h2`
 const InputGroup = styled.div`
     display: flex;
 `;
-const ListGroupd = styled.div`
-    display: flex;
-    justify-content: center;
-    align-items: center;
-`;
+
 const Input = styled.input`
     flex: 10;
     padding: 5px;
@@ -38,10 +34,15 @@ class App extends Component {
     this.state = {
       list: [],
       complete: [],
+      subtotal: 0,
       filteredSearch: "",
       newItem: "",
+      category: "",
+      price: null,
+      quanity: null,
       pending: true,
-      id: -1
+      id: -1,
+      itemsShow: "All"
 
     }
   }
@@ -49,8 +50,12 @@ class App extends Component {
   updateInput = (key, value) => {
     this.setState({
       [key]: value,
-      filteredSearch: value.substr(0, 20),
     })
+  }
+
+  handleSelect = () => {
+
+    this.updateInput()
   }
 
   pendingCompleted = (id) => {
@@ -62,9 +67,6 @@ class App extends Component {
       if (element.pending === false) {
         complete.push(element)
       }
-      else if (element.pending === true) {
-        complete.pop(element)
-      }
     }
     list.pop(list[id])
     this.setState({
@@ -74,6 +76,7 @@ class App extends Component {
   }
   pendingList = (id) => {
     const complete = [...this.state.complete]
+    console.log(complete[id])
     complete[id].pending = true;
     const list = [...this.state.list]
     for (let index = 0; index < complete.length; index++) {
@@ -90,17 +93,28 @@ class App extends Component {
   }
   addItem = () => {
     const idx = this.state.id + 1
-    const newItem = { text: this.state.newItem, id: idx, pending: true, category: "", quanity: 0, price: 0 }
+    const newItem = {
+      text: this.state.newItem, id: idx, pending: true,
+      category: this.state.category, quanity: this.state.quanity, price: this.state.price
+    }
     const list = [...this.state.list]
     list.push(newItem);
-    this.setState({ list, newItem: "", id: idx, pending: true, category: "", quanity: 0, price: 0 })
+    let subtotal = this.state.subtotal
+    subtotal += (this.state.price * this.state.quanity)
+    console.log(subtotal)
+    this.setState({ list, subtotal, newItem: "", id: idx, pending: true, category: "", quanity: 0, price: 0 })
   }
 
-  updateMetadata = (idx) => {
-    const newItem = { text: this.state.newItem, pending: true, category: "", quanity: 0, price: 0 }
+  updateMetadata = (idx, newValue) => {
+    const newItem = {
+      text: this.state.newItem, pending: true,
+      category: this.state.category, quanity: this.state.quanity, price: this.state.price
+    }
     const list = [...this.state.list]
-    list.push(newItem);
-    this.setState({ list: this.state.list })
+
+    let subtotal = this.subtotal
+    subtotal += (this.state.price * this.state.quanity)
+    this.setState({ list, subtotal, newItem: "", pending: true, category: "", quanity: 0, price: 0 })
 
   }
 
@@ -109,29 +123,34 @@ class App extends Component {
     this.setState({ list: this.state.list })
   }
 
-  sortByText = (a, b) => {
-    const diff = a.text.toLowerCase().localeCompare(b.text.toLowerCase());
-    return diff;
+  updateItemsShow = (str) => {
+    this.setState({
+      itemsShow: str
+    })
   }
+
   render() {
     const { list, complete } = this.state
-    const sortedList = list.sort((a, b) => a.text.localeCompare(b.text))
-      .map((item) => <ListGroupd><SubTitleStyle
-        style={{ textDecoration: item.pending ? "" : "line-through" }}
-        onClick={() => this.pendingCompleted(item.id)}
-        key={item.id}>{item.text} </SubTitleStyle><EditForm item={item} updateMetadata={this.updateMetadata}
-          category={item.category} price={item.price} quanity={item.quanity}
-          userInput={this.updateInput} idx={item.id} /> </ListGroupd>);
     const sortedComplete = complete.sort((a, b) => a.text.localeCompare(b.text))
-      .map((item) => <SubTitleStyle
-        style={{ textDecoration: item.pending ? "" : "line-through" }}
-        onClick={() => this.pendingList(item.id)}
-        key={item.id} >{item.text}</SubTitleStyle>);
+    const sortedList = list.sort((a, b) => a.text.localeCompare(b.text))
+    const filteredList = sortedList.filter((item) => {
+      return item.text.toLowerCase().includes(this.state.newItem.toLowerCase())
+    })
 
+    let items = []
+    if (this.state.itemsShow === "All") {
+      items = filteredList
+    }
+    else if (this.state.itemsShow === "Drinks") {
+      items = filteredList.filter(item => item.category.includes("Drinks"))
+    }
+    else if (this.state.itemsShow === "Misc") {
+      items = filteredList.filter(item => item.category.includes("Misc"))
+    }
+    else if (this.state.itemsShow === "Food") {
+      items = filteredList.filter(item => item.category.includes("Food"))
+    }
 
-    // const filteredList = list.filter((item) => {
-    //   return item.value.toLowerCase().indexOf(this.state.filteredSearch.toLowerCase()) !== -1
-    // })
     return (
       <>
         <Header />
@@ -143,16 +162,57 @@ class App extends Component {
             value={this.state.newItem}
             onChange={e => this.updateInput("newItem", e.target.value)}
           ></Input>
+          <Input
+            type="number"
+            name="price"
+            placeholder="Please enter item price"
+            value={this.state.price}
+            onChange={e => this.updateInput("price", e.target.value)}
+          ></Input>
+          <Input
+            type="number"
+            name="quanity"
+            placeholder="Please enter item quanity"
+            value={this.state.quanity}
+            onChange={e => this.updateInput("quanity", e.target.value)}
+          ></Input>
+          <select name="category" value={this.state.category} onChange={e => this.updateInput("category", e.target.value)} className="filter-list">
+            <option value="all"> All</option>
+            <option value="Food"> Food</option>
+            <option value="Drinks"> Drinks</option>
+            <option value="Misc"> Misc</option>
+          </select>
           <Button variant="outline-secondary" onClick={() => this.addItem()}>Create Button</Button>
         </InputGroup>
         <TitleStyle>
           List of Pending Items
         </TitleStyle>
-        {sortedList}
+        {
+          items.map((item) => <Item item={item} item={item} updateMetadata={this.updateMetadata}
+            category={item.category} price={item.price} quanity={item.quanity}
+            userInput={this.updateInput} idx={item.id} />)
+        }
+        <InputGroup style={{ justifyContent: "center" }}>
+          <Button variant={'outline-secondary'} onClick={() => this.updateItemsShow("All")}>All</Button>
+          <Button variant={'outline-secondary'} onClick={() => this.updateItemsShow("Food")}>Food</Button>
+          <Button variant={'outline-secondary'} onClick={() => this.updateItemsShow("Drinks")}>Drinks</Button>
+          <Button variant={'outline-secondary'} onClick={() => this.updateItemsShow("Misc")}>Misc</Button>
+        </InputGroup>
+
+        <SubTitleStyle style={{ background: '#333', color: 'white' }}>
+          Pending Subtotal:
+          {this.state.subtotal}
+        </SubTitleStyle>
+
         <TitleStyle>
           List of Crossed Off Items
         </TitleStyle>
-        {sortedComplete}
+        {
+          sortedComplete.map((item) => <SubTitleStyle
+            style={{ textDecoration: item.pending ? "" : "line-through" }}
+            onClick={() => this.pendingList(item.id)}
+            key={item.id} >{item.text}</SubTitleStyle>)
+        }
       </>
     )
   }
