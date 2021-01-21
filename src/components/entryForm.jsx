@@ -12,25 +12,36 @@ const InputGroup = styled.div`
 
 const EntryForm = (props) => {
 
-  const handleInput = (key, value) => {
-    this.setState({
-      [key]: value,
-      filteredSearch: value.substr(0, 20),
-    })
-  }
   return (
     <InputGroup >
       <Input
         type="text"
         name="items"
         placeholder="Please enter shopping list item"
-        value={this.state.newItem}
-        onChange={e => this.handleInput("newItem", e.target.value)}
+        value={props.newItem}
+        onChange={e => props.updateInput("newItem", e.target.value)}
       ></Input>
-      <select name="category" className="filter-list">
+      <Input
+        type="number"
+        name="price"
+        placeholder="Please enter item price"
+        value={props.price}
+        onChange={e => props.updateInput("price", e.target.value)}
+      ></Input>
+      <Input
+        type="number"
+        name="quanity"
+        placeholder="Please enter item quanity"
+        value={props.quanity}
+        onChange={e => props.updateInput("quanity", e.target.value)}
+      ></Input>
+      <select name="category" value={props.category} onChange={e => props.updateInput("category", e.target.value)} className="filter-list">
         <option value="all"> All</option>
+        <option value="Food"> Food</option>
+        <option value="Drinks"> Drinks</option>
+        <option value="Misc"> Misc</option>
       </select>
-      <Button variant="outline-secondary" onClick={() => this.addItem()}>Create Button</Button>
+      <Button variant="outline-secondary" onClick={() => props.addItem()}>Create Button</Button>
     </InputGroup>
   )
 }

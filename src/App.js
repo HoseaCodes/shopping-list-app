@@ -3,7 +3,8 @@ import './App.css';
 import styled from 'styled-components';
 import Header from './components/header';
 import Item from './components/item';
-import { Button } from 'react-bootstrap';
+import ButtonFilter from './components/filterData';
+import EntryForm from './components/entryForm';
 
 const TitleStyle = styled.h2`
     background: #333;
@@ -20,13 +21,6 @@ const SubTitleStyle = styled.h2`
 const InputGroup = styled.div`
     display: flex;
 `;
-
-const Input = styled.input`
-    flex: 10;
-    padding: 5px;
-`;
-
-
 
 class App extends Component {
   constructor(props) {
@@ -53,11 +47,6 @@ class App extends Component {
     })
   }
 
-  handleSelect = () => {
-
-    this.updateInput()
-  }
-
   pendingCompleted = (id) => {
     const list = [...this.state.list]
     list[id].pending = false;
@@ -74,6 +63,7 @@ class App extends Component {
       complete
     })
   }
+
   pendingList = (id) => {
     const complete = [...this.state.complete]
     console.log(complete[id])
@@ -91,6 +81,7 @@ class App extends Component {
       complete
     })
   }
+
   addItem = () => {
     const idx = this.state.id + 1
     const newItem = {
@@ -118,11 +109,6 @@ class App extends Component {
 
   }
 
-  onSubmit = (e) => {
-    this.addItem(this.newItem)
-    this.setState({ list: this.state.list })
-  }
-
   updateItemsShow = (str) => {
     this.setState({
       itemsShow: str
@@ -131,11 +117,24 @@ class App extends Component {
 
   render() {
     const { list, complete } = this.state
+
+    /* Sort Alphabetically */
+
     const sortedComplete = complete.sort((a, b) => a.text.localeCompare(b.text))
     const sortedList = list.sort((a, b) => a.text.localeCompare(b.text))
+
+    /* Sort Alphabetically */
+
+
+    /* Filter Input */
+
     const filteredList = sortedList.filter((item) => {
       return item.text.toLowerCase().includes(this.state.newItem.toLowerCase())
     })
+    /* Filter Input */
+
+
+    /* Filter Button Method */
 
     let items = []
     if (this.state.itemsShow === "All") {
@@ -151,52 +150,25 @@ class App extends Component {
       items = filteredList.filter(item => item.category.includes("Food"))
     }
 
+    /* Filter Button Method */
+
+
     return (
       <>
         <Header />
-        <InputGroup >
-          <Input
-            type="text"
-            name="items"
-            placeholder="Please enter shopping list item"
-            value={this.state.newItem}
-            onChange={e => this.updateInput("newItem", e.target.value)}
-          ></Input>
-          <Input
-            type="number"
-            name="price"
-            placeholder="Please enter item price"
-            value={this.state.price}
-            onChange={e => this.updateInput("price", e.target.value)}
-          ></Input>
-          <Input
-            type="number"
-            name="quanity"
-            placeholder="Please enter item quanity"
-            value={this.state.quanity}
-            onChange={e => this.updateInput("quanity", e.target.value)}
-          ></Input>
-          <select name="category" value={this.state.category} onChange={e => this.updateInput("category", e.target.value)} className="filter-list">
-            <option value="all"> All</option>
-            <option value="Food"> Food</option>
-            <option value="Drinks"> Drinks</option>
-            <option value="Misc"> Misc</option>
-          </select>
-          <Button variant="outline-secondary" onClick={() => this.addItem()}>Create Button</Button>
-        </InputGroup>
+        <EntryForm category={this.state.category} price={this.state.price}
+          quanity={this.state.quanity} newItem={this.state.newItem}
+          updateInput={this.updateInput} addItem={this.addItem} />
         <TitleStyle>
           List of Pending Items
         </TitleStyle>
         {
-          items.map((item) => <Item item={item} item={item} updateMetadata={this.updateMetadata}
+          items.map((item) => <Item item={item} updateMetadata={this.updateMetadata}
             category={item.category} price={item.price} quanity={item.quanity}
             userInput={this.updateInput} idx={item.id} />)
         }
         <InputGroup style={{ justifyContent: "center" }}>
-          <Button variant={'outline-secondary'} onClick={() => this.updateItemsShow("All")}>All</Button>
-          <Button variant={'outline-secondary'} onClick={() => this.updateItemsShow("Food")}>Food</Button>
-          <Button variant={'outline-secondary'} onClick={() => this.updateItemsShow("Drinks")}>Drinks</Button>
-          <Button variant={'outline-secondary'} onClick={() => this.updateItemsShow("Misc")}>Misc</Button>
+          <ButtonFilter updateItemsShow={this.updateItemsShow} />
         </InputGroup>
 
         <SubTitleStyle style={{ background: '#333', color: 'white' }}>
