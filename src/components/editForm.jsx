@@ -1,69 +1,60 @@
-import React, { Component } from "react";
+import React from "react";
 import Form from "react-bootstrap/Form";
 import Button from "react-bootstrap/Button";
 import Container from "react-bootstrap/Container";
+import Row from "react-bootstrap/Row";
+import Col from "react-bootstrap/Col";
 
-class EditItem extends Component {
-    constructor(props) {
-        super(props);
-        this.updateMetadata = this.props.updateMetadata.bind(this);
-        this.handleChange = this.handleChange.bind(this);
-        this.state = {
-            category: this.props.item.category,
-            price: this.props.item.price,
-            quanity: this.props.item.quanity,
+const EditItem = (props) => {
+    return (
+        <div className="EditPage-container">
+            <Container className="shadow p-3 bg-white rounded">
+                <div>
+                    <h3>Edit Item</h3>
+                </div>
+                <Form.Group>
+                    <Row>
+                        <Col>
+                            <Form.Label>Category</Form.Label>
+                            <Form.Control
+                                size="sm"
+                                type="text"
+                                placeholder={props.category}
+                                value={props.category}
+                                name="category"
+                                onChange={e => props.updateInput("category", e.target.value)}
+                            />
+                        </Col>
+                        <Col>
+                            <Form.Label>Price</Form.Label>
+                            <Form.Control
+                                size="sm"
+                                type="number"
+                                placeholder="Please enter item price"
+                                value={props.price}
+                                name="price"
+                                onChange={e => props.updateInput("price", e.target.value)}
+                            />    </Col>
+                        <Col>
+                            <Form.Label>Quantity</Form.Label>
+                            <Form.Control
+                                size="sm"
+                                type="number"
+                                rows="3"
+                                value={props.quantity}
+                                name="quantity"
+                                onChange={e => props.updateInput("quantity", e.target.value)}
+                            />    </Col>
+                    </Row>
 
-        };
-    }
-    handleChange(event) {
-        this.setState({ [event.target.name]: event.target.value });
-    }
+                </Form.Group>
 
-    render() {
-        return (
-            <div className="EditPage-container">
-                <Container className="shadow p-3 bg-white rounded">
-                    <div className="form-header">
-                        <h3>Edit Item</h3>
-                    </div>
-                    <br />
-                    <Form.Group>
-                        <Form.Label>Category</Form.Label>
-                        <Form.Control
-                            type="text"
-                            placeholder={this.props.item.category}
-                            value={this.state.category}
-                            name="category"
-                            onChange={this.handleChange}
-                        />
-                    </Form.Group>
-                    <Form.Group>
-                        <Form.Label>Price</Form.Label>
-                        <Form.Control
-                            type="number"
-                            placeholder={this.props.item.price}
-                            value={this.state.price}
-                            name="price"
-                            onChange={this.handleChange}
-                        />
-                    </Form.Group>
-                    <Form.Group>
-                        <Form.Label>Quanity</Form.Label>
-                        <Form.Control
-                            type="number"
-                            rows="3"
-                            value={this.state.quanity}
-                            name="quanity"
-                            onChange={this.handleChange}
-                        />
-                    </Form.Group>
-                    <Button onClick={() => this.updateMetadata(this.props.item.id)} variant={"outline-secondary"} type="submit">
-                        Submit Changes
+                <Button onClick={() => props.updateMetadata(props.item.id)} variant={"outline-secondary"} type="submit">
+                    Submit Changes
             </Button>{" "}
-                </Container>
-            </div>
-        );
-    }
+            </Container>
+        </div>
+    );
 }
 
 export default EditItem;

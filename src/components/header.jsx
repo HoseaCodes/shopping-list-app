@@ -8,7 +8,7 @@ const HeaderStyle = styled.header`
     padding: 10px;
 `;
 
-function Header() {
+const Header = () => {
     return (
         <HeaderStyle>
             <h1> Shopping List</h1>

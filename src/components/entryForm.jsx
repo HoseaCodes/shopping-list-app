@@ -30,13 +30,13 @@ const EntryForm = (props) => {
       ></Input>
       <Input
         type="number"
-        name="quanity"
-        placeholder="Please enter item quanity"
-        value={props.quanity}
-        onChange={e => props.updateInput("quanity", e.target.value)}
+        name="quantity"
+        placeholder="Please enter item quantity"
+        value={props.quantity}
+        onChange={e => props.updateInput("quantity", e.target.value)}
       ></Input>
       <select name="category" value={props.category} onChange={e => props.updateInput("category", e.target.value)} className="filter-list">
-        <option value="all"> All</option>
+        <option value="all"> Category</option>
         <option value="Food"> Food</option>
         <option value="Drinks"> Drinks</option>
         <option value="Misc"> Misc</option>

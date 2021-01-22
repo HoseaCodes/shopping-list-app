@@ -5,6 +5,8 @@ import Header from './components/header';
 import Item from './components/item';
 import ButtonFilter from './components/filterData';
 import EntryForm from './components/entryForm';
+import { Container } from 'react-bootstrap';
+import { v4 as uuidv4 } from 'uuid';
 
 const TitleStyle = styled.h2`
     background: #333;
@@ -21,6 +23,12 @@ const SubTitleStyle = styled.h2`
 const InputGroup = styled.div`
     display: flex;
 `;
+const ListItems = styled.div`
+    display: flex;
+    flex-wrap: wrap;
+    height: 50vh;
+    overflow: scroll;
+`;
 
 class App extends Component {
   constructor(props) {
@@ -28,14 +36,14 @@ class App extends Component {
     this.state = {
       list: [],
       complete: [],
-      subtotal: 0,
+      subtotal: null,
       filteredSearch: "",
       newItem: "",
       category: "",
       price: null,
-      quanity: null,
+      quantity: null,
       pending: true,
-      id: -1,
+      id: null,
       itemsShow: "All"
 
     }
@@ -49,33 +57,35 @@ class App extends Component {
 
   pendingCompleted = (id) => {
     const list = [...this.state.list]
-    list[id].pending = false;
     const complete = [...this.state.complete]
     for (let index = 0; index < list.length; index++) {
       const element = list[index];
-      if (element.pending === false) {
-        complete.push(element)
+      if (element.id === id) {
+        if (element.pending === true) {
+          element.pending = false
+          complete.push(element)
+          list.pop(element)
+        }
       }
+      this.setState({
+        list,
+        complete
+      })
     }
-    list.pop(list[id])
-    this.setState({
-      list,
-      complete
-    })
   }
-
-  pendingList = (id) => {
-    const complete = [...this.state.complete]
-    console.log(complete[id])
-    complete[id].pending = true;
+  crossCheck = (id) => {
     const list = [...this.state.list]
+    const complete = [...this.state.complete]
     for (let index = 0; index < complete.length; index++) {
       const element = complete[index];
-      if (element.pending === true) {
-        list.push(element)
+      if (element.id === id) {
+        if (element.pending === false) {
+          element.pending = true
+          list.push(element)
+          complete.pop(element)
+        }
       }
     }
-    complete.pop(complete[id])
     this.setState({
       list,
       complete
@@ -83,29 +93,40 @@ class App extends Component {
   }
 
   addItem = () => {
-    const idx = this.state.id + 1
     const newItem = {
-      text: this.state.newItem, id: idx, pending: true,
-      category: this.state.category, quanity: this.state.quanity, price: this.state.price
+      text: this.state.newItem, id: uuidv4(), pending: true,
+      category: this.state.category, quantity: this.state.quantity, price: this.state.price
     }
     const list = [...this.state.list]
     list.push(newItem);
     let subtotal = this.state.subtotal
-    subtotal += (this.state.price * this.state.quanity)
-    console.log(subtotal)
-    this.setState({ list, subtotal, newItem: "", id: idx, pending: true, category: "", quanity: 0, price: 0 })
+    subtotal += (this.state.price * this.state.quantity)
+    this.setState({ list, subtotal, newItem: "", id: null, pending: true, category: "", quantity: 0, price: 0 })
   }
 
-  updateMetadata = (idx, newValue) => {
-    const newItem = {
-      text: this.state.newItem, pending: true,
-      category: this.state.category, quanity: this.state.quanity, price: this.state.price
-    }
+  updateMetadata = (idx) => {
     const list = [...this.state.list]
+    const category = this.state.category
+    const quantity = this.state.quantity
+    const price = this.state.price
+    list.map((element) => {
+      if (element.id === idx) {
+        var editItem = {
+          text: element.text,
+          pending: true,
+          id: idx,
+          category: category,
+          quantity: quantity,
+          price: price
+        }
+        list.pop(element.idx)
+        list.push(editItem)
+      }
+    })
+    let subtotal = this.state.subtotal
 
-    let subtotal = this.subtotal
-    subtotal += (this.state.price * this.state.quanity)
-    this.setState({ list, subtotal, newItem: "", pending: true, category: "", quanity: 0, price: 0 })
+    subtotal += (this.state.price * this.state.quantity)
+    this.setState({ list, subtotal, category: "", quantity: 0, price: 0 })
 
   }
 
@@ -154,26 +175,29 @@ class App extends Component {
 
 
     return (
-      <>
+      <Container>
         <Header />
         <EntryForm category={this.state.category} price={this.state.price}
-          quanity={this.state.quanity} newItem={this.state.newItem}
+          quantity={this.state.quantity} newItem={this.state.newItem}
           updateInput={this.updateInput} addItem={this.addItem} />
         <TitleStyle>
           List of Pending Items
         </TitleStyle>
-        {
-          items.map((item) => <Item item={item} updateMetadata={this.updateMetadata}
-            category={item.category} price={item.price} quanity={item.quanity}
-            userInput={this.updateInput} idx={item.id} />)
-        }
+        <SubTitleStyle>Sort By Category</SubTitleStyle>
         <InputGroup style={{ justifyContent: "center" }}>
           <ButtonFilter updateItemsShow={this.updateItemsShow} />
         </InputGroup>
+        <ListItems>
+          {
+            items.map((item) => <Item item={item} updateMetadata={this.updateMetadata}
+              category={item.category} price={item.price} quantity={item.quantity}
+              updateInput={this.updateInput} idx={item.id} pendingCompleted={this.pendingCompleted} />)
+          }
+        </ListItems>
 
         <SubTitleStyle style={{ background: '#333', color: 'white' }}>
           Pending Subtotal:
-          {this.state.subtotal}
+          ${this.state.subtotal}
         </SubTitleStyle>
 
         <TitleStyle>
@@ -182,10 +206,10 @@ class App extends Component {
         {
           sortedComplete.map((item) => <SubTitleStyle
             style={{ textDecoration: item.pending ? "" : "line-through" }}
-            onClick={() => this.pendingList(item.id)}
+            onClick={() => this.crossCheck(item.id)}
             key={item.id} >{item.text}</SubTitleStyle>)
         }
-      </>
+      </Container>
     )
   }
 }
